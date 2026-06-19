@@ -216,7 +216,7 @@ class UserRegister(BaseModel):
     also_barber: bool = False
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class UpdateProfile(BaseModel):
@@ -344,7 +344,7 @@ async def login(user: UserLogin):
     conn = await get_conn()
     try:
         async with conn.cursor(aiomysql.DictCursor) as cur:
-            await cur.execute("SELECT u.id, u.full_name, u.email, u.password_hash, u.role, u.phone, u.loyalty_points, b.id as barber_id, b.salon_id as barber_salon_id, b.is_online, b.rating, b.specialization, b.bio, b.avatar_url, b.working_hours_start, b.working_hours_end, b.verification_status, s.id as owned_salon_id, s.name as salon_name FROM users u LEFT JOIN barbers b ON u.id = b.user_id LEFT JOIN salons s ON u.id = s.owner_id WHERE u.email=%s", (user.email,))
+            await cur.execute("SELECT u.id, u.full_name, u.email, u.password_hash, u.role, u.phone, u.loyalty_points, b.id as barber_id, b.salon_id as barber_salon_id, b.is_online, b.rating, b.specialization, b.bio, b.avatar_url, b.working_hours_start, b.working_hours_end, b.verification_status, s.id as owned_salon_id, s.name as salon_name FROM users u LEFT JOIN barbers b ON u.id = b.user_id LEFT JOIN salons s ON u.id = s.owner_id WHERE u.email=%s OR u.phone=%s", (user.email, user.email))
             db_user = await cur.fetchone()
             if not db_user:
                 raise HTTPException(status_code=401, detail="Email yoki parol noto'g'ri")
